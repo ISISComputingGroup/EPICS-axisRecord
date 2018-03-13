@@ -1,0 +1,23 @@
+*~
+O.*
+*.pyc
+*.swp
+*BAK.adl
+bin/
+builddir/
+#Note on a case insensitve file system like Mac or Windows
+# db/ is the same as Db/. So: ignore db, but not axisApp/Db/
+dbd/
+html/
+include/
+lib/
+templates/
+envPaths
+dllPath.bat
+auto_settings.sav*
+auto_positions.sav*
+RELEASE*.local*
+CONFIG_SITE.local*
+
+
+.project
