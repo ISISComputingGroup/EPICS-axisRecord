@@ -9,12 +9,12 @@ doxygen:
 	doxygen
 
 install:
-	cp -f *.html /home/epics/web_software/epics
-	cp -f *.png /home/epics/web_software/epics
-	cp -rfp motorDoxygenHTML  /home/epics/web_software/epics/
+	$(CP) -f *.html /home/epics/web_software/epics
+	$(CP) -f *.png /home/epics/web_software/epics
+	$(CP) -rfp motorDoxygenHTML  /home/epics/web_software/epics/
 
 clean:
-	rm -rf motorDoxygenHTML/*
+	$(RM) -rf motorDoxygenHTML/*
 
 
 realclean: clean
