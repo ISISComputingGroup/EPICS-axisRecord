@@ -11,6 +11,19 @@ record(bo, "$(P)allstop") {
   field(DESC, "Stop All IOC motors.")
 }
 
+
+# Monitors the global STOP:ALL PV. When this PV changes, '1' is
+# sent to $(P)allstop over channel access.
+record(calcout, "$(P)allstop:MONITOR") {
+  field(DESC, "Stop All IOC motors.")
+  field(INPA, "$(PVPREFIX)CS:MOT:STOP:ALL CP")
+  field(OOPT, "When Non-zero")
+  field(CALC, "A")
+  field(DOPT, "Use OCAL")
+  field(OCAL, 1)
+  field(OUT, "$(P)allstop.VAL CA")
+}
+
 # Indicates if all motors in this IOC are done moving.
 # Set by axisUtil when $(P)moving.VAL == 0.
 record(bi, "$(P)alldone") {
@@ -20,6 +33,66 @@ record(bi, "$(P)alldone") {
   field(DESC, "All IOC motors done moving.")
 }
 
+# process "Every Time" so value can be re-applied by periodic processing by _FAN2
+record(calcout, "$(P)_MOVING")
+{
+  field(SCAN, "Passive")
+  field(INPA, "$(P)alldone CP")
+  field(CALC, "A")
+  field(VAL, "1")
+  field(OOPT, "Every Time")
+  field(DOPT, "Use OCAL")
+  field(OCAL, "A = 0 ? 1 : 0")
+  field(OUT, "$(P)_FAN PP")
+}
+
+## this file get loaded by each motor IOC, it needs to
+## set a different calc field in MOVING for each IOC
+## 
+## it is OK to reuse OUTA in the lines when they refer to a
+## specific IOC and no two lines will get loaded at one. However
+## it is IMPORTANT to not re-use one of the outputs on the
+## MOVING or _MOVING1 etc calc record target 
+## don't write to the L fields of MOVING, _MOVING1 and _MOVING2
+## as this is written to already - see INSTETC.db
+record(dfanout, "$(P)_FAN")
+{
+    field(OMSL, "supervisory")
+    field(SELM, "All")
+$(IFIOC_GALIL_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.A CA")
+$(IFIOC_GALIL_02=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.B CA")
+$(IFIOC_GALIL_03=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.C CA")
+$(IFIOC_GALIL_04=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.D CA")
+$(IFIOC_GALIL_05=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.E CA")
+$(IFIOC_GALIL_06=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.F CA")
+$(IFIOC_GALIL_07=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.G CA")
+$(IFIOC_GALIL_08=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.H CA")
+$(IFIOC_GALIL_09=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.I CA")
+$(IFIOC_GALIL_10=#)  field(OUTA, "$(PVPREFIX)CS:MOT:MOVING.J CA")
+$(IFIOC_SMC100_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.A CA")
+$(IFIOC_CONEXAGP_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.B CA")
+$(IFIOC_MCLEN_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.C CA")
+$(IFIOC_MCLEN_02=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.D CA")
+$(IFIOC_MCLEN_03=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.E CA")
+$(IFIOC_LINMOT_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.F CA")
+$(IFIOC_LINMOT_02=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.G CA")
+$(IFIOC_LINMOT_03=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.H CA")
+$(IFIOC_BKHOFF_01=#) field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.I CA")
+$(IFIOC_PIMOT_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.J CA")
+$(IFIOC_SM300_01=#)  field(OUTA, "$(PVPREFIX)CS:MOT:_MOVING1.K CA")
+}
+
+# force periodic processing to catch up any missing, shouldn't
+# be necessary but no harm to be careful 
+record(fanout, "$(P)_FAN2")
+{
+    field(SCAN, "10 second")
+    field(SELM, "All")
+    field(LNK1, "$(P)_MOVING.PROC")
+    field(SDIS, "$(P)_MOVING.PACT")
+    field(DISV, 1)
+}
+
 # The number of motors moving in this IOC.
 # $(P)moving.VAL is set by axisUtil.
 record(longout, "$(P)moving") {
@@ -27,12 +100,12 @@ record(longout, "$(P)moving") {
 }
 
 # Used by xxx.adl to blink "Moving" indicator.
-record(calc, "$(P)alldoneBlink") {
-  field(SCAN, ".5 second")
-  field(CALC, "A?0:!B")
-  field(INPA, "$(P)alldone")
-  field(INPB, "$(P)alldoneBlink")
-}
+#record(calc, "$(P)alldoneBlink") {
+#  field(SCAN, ".5 second")
+#  field(CALC, "A?0:!B")
+#  field(INPA, "$(P)alldone")
+#  field(INPB, "$(P)alldoneBlink")
+#}
 
 # Allow smart clients to maintain a list of moving motors
 record(waveform, "$(P)movingDiff") {
