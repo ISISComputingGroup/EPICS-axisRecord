@@ -982,7 +982,7 @@ asynStatus asynAxisController::setIdlePollPeriod(double idlePollPeriod)
 
 extern "C" {
 
-asynStatus setMovingPollPeriod(const char *portName, double movingPollPeriod)
+static asynStatus setMovingPollPeriod(const char *portName, double movingPollPeriod)
 {
   asynAxisController *pC;
   static const char *functionName = "setMovingPollPeriod";
@@ -996,7 +996,7 @@ asynStatus setMovingPollPeriod(const char *portName, double movingPollPeriod)
   return pC->setMovingPollPeriod(movingPollPeriod);
 }
 
-asynStatus setIdlePollPeriod(const char *portName, double idlePollPeriod)
+static asynStatus setIdlePollPeriod(const char *portName, double idlePollPeriod)
 {
   asynAxisController *pC;
   static const char *functionName = "setIdlePollPeriod";
@@ -1012,7 +1012,7 @@ asynStatus setIdlePollPeriod(const char *portName, double idlePollPeriod)
 
 
 
-asynStatus asynMotorEnableMoveToHome(const char *portName, int axis, int distance)
+static asynStatus asynMotorEnableMoveToHome(const char *portName, int axis, int distance)
 {
   asynAxisController *pC = NULL;
   asynAxisAxis *pA = NULL;

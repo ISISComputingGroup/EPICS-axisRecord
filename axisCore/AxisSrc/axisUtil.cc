@@ -368,7 +368,7 @@ static int axisMovingCount()
 }
 
 
-void listMovingAxiss()
+static void listMovingAxiss()
 {
     int itera;
   
@@ -381,7 +381,7 @@ void listMovingAxiss()
 }
 
 
-void printChIDlist()
+static void printChIDlist()
 {
     int itera;
 
